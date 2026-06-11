@@ -36,9 +36,7 @@ const signedIn = auth && authData?.userId;
         {signedIn ? (
           <UserButton />
         ) : (
-          <SignInButton mode="redirect" signInUrl="/login">
-            <button class="btn-ghost">Sign in</button>
-          </SignInButton>
+          <a href="/login" class="btn-ghost">Sign in</a>
         )}
         {signedIn && <a href="/dashboard" class="btn-primary btn-sm">Dashboard</a>}
       </div>
