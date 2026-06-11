@@ -1,15 +1,20 @@
 {
   "name": "minhagent",
   "private": true,
-  "workspaces": [
-    "apps/*"
-  ],
   "scripts": {
-    "dev:web": "bun run --cwd apps/web dev",
-    "dev:webhook": "bun run --cwd apps/webhook dev",
-    "build": "bun run --cwd apps/web build && bun run --cwd apps/webhook build",
-    "deploy:web": "bun run --cwd apps/web deploy",
-    "deploy:webhook": "bun run --cwd apps/webhook deploy",
-    "typecheck": "bun run --cwd apps/web typecheck && bun run --cwd apps/webhook typecheck"
+    "dev:web": "pnpm --filter @minhagent/web dev",
+    "dev:webhook": "pnpm --filter @minhagent/webhook dev",
+    "build": "pnpm --filter @minhagent/web build && pnpm --filter @minhagent/webhook build",
+    "deploy:web": "pnpm --filter @minhagent/web deploy",
+    "deploy:webhook": "pnpm --filter @minhagent/webhook deploy",
+    "typecheck": "pnpm --filter @minhagent/web typecheck && pnpm --filter @minhagent/webhook typecheck"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@clerk/shared",
+      "esbuild",
+      "sharp",
+      "workerd"
+    ]
   }
 }

@@ -11,7 +11,7 @@
   "workflows": [
     {
       "binding": "GITHUB_EVENT_WORKFLOW",
-      "name": "github-event-workflow",
+      "name": "minhagent_github_event_workflow",
       "class_name": "GitHubEventWorkflow"
     }
   ]

@@ -13,7 +13,7 @@
   "kv_namespaces": [
     {
       "binding": "OAUTH_KV",
-      "id": "TODO_CREATE_WITH_wrangler_kv_namespace_create"
+      "id": "702bec6d41ba43a0b8baab79c11f4b34"
     }
   ],
   "vars": {
