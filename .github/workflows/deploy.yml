@@ -28,9 +28,12 @@ jobs:
       - run: pnpm install --frozen-lockfile
 
       - name: Build web
-        run: cd apps/web && pnpm run build
-        # Build must precede typecheck: @cloudflare/vite-plugin validates wrangler.jsonc
-        # main field, which references dist/ that only exists after build.
+        run: |
+          mkdir -p apps/web/dist/_worker.js
+          touch apps/web/dist/_worker.js/index.js
+          cd apps/web && pnpm run build
+        # Create a placeholder so @cloudflare/vite-plugin's main field validation passes.
+        # astro build replaces it with the real worker entry.
 
       - name: Typecheck
         run: pnpm run typecheck
