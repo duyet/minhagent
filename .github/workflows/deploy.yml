@@ -29,6 +29,8 @@ jobs:
 
       - name: Build web
         run: cd apps/web && pnpm run build
+        # Build must precede typecheck: @cloudflare/vite-plugin validates wrangler.jsonc
+        # main field, which references dist/ that only exists after build.
 
       - name: Typecheck
         run: pnpm run typecheck

@@ -122,11 +122,6 @@ const gateway = gatewayRaw ? JSON.parse(gatewayRaw) : null;
     font-size: 0.85rem;
   }
 
-  .empty {
-    color: var(--muted);
-    font-size: 0.85rem;
-  }
-
   /* Grant list */
   .grant-list {
     list-style: none;
@@ -159,7 +154,7 @@ const gateway = gatewayRaw ? JSON.parse(gatewayRaw) : null;
     display: flex;
     flex-direction: column;
     gap: 0.85rem;
-    margin-top: gateway ? 0 : 0;
+    margin-top: 0;
   }
 
   .current-key {

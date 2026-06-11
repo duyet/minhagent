@@ -36,7 +36,7 @@ Filter by package: `pnpm --filter @minhagent/web <cmd>`, `pnpm --filter @minhage
 
 ## CI
 
-Push to `main` triggers `.github/workflows/deploy.yml`: typecheck → deploy webhook → deploy web.
+Push to `main` triggers `.github/workflows/deploy.yml`: build → typecheck → deploy webhook → deploy web.
 Typecheck must pass before deploy.
 
 ## Gotchas

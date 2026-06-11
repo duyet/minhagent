@@ -46,7 +46,7 @@ const scopeLabels: Record<string, string> = {
         <input type="hidden" name="code_challenge" value={codeChallenge} />
         <input type="hidden" name="code_challenge_method" value={codeChallengeMethod} />
         <button type="submit" name="decision" value="deny" class="btn-deny">Deny</button>
-        <button type="submit" name="decision" value="allow" class="btn-allow">Allow</button>
+        <button type="submit" name="decision" value="allow" class="btn-primary">Allow</button>
       </form>
       <p class="disclaimer">You can revoke this access at any time from your Dashboard.</p>
     </div>
@@ -118,27 +118,13 @@ const scopeLabels: Record<string, string> = {
   .actions button {
     flex: 1;
     padding: 0.55rem;
-    border-radius: var(--radius);
     font-size: 0.85rem;
-    font-weight: 500;
-    cursor: pointer;
-    border: none;
-    transition: opacity 0.15s;
   }
 
-  .btn-allow {
-    background: var(--accent);
-    color: #fff;
-  }
-
-  .btn-deny {
+  .actions .btn-deny {
     background: transparent;
     color: var(--muted);
-    border: 1px solid var(--border) !important;
-  }
-
-  .actions button:hover {
-    opacity: 0.85;
+    border: 1px solid var(--border);
   }
 
   .disclaimer {
