@@ -9,14 +9,14 @@
     "typecheck": "astro check"
   },
   "dependencies": {
-    "astro": "^5.0.0",
-    "@astrojs/cloudflare": "^12.0.0",
+    "astro": "^6.1.10",
+    "@astrojs/cloudflare": "^13.1.10",
     "@clerk/astro": "^2.0.0"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.0",
     "@cloudflare/workers-types": "^4.20260611.1",
     "typescript": "^5.0.0",
-    "wrangler": "^4.99.0"
+    "wrangler": "^4.100.0"
   }
 }
