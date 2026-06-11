@@ -29,12 +29,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
 
       - name: Build web
-        run: |
-          mkdir -p apps/web/dist/_worker.js
-          touch apps/web/dist/_worker.js/index.js
-          cd apps/web && pnpm run build
-        # Create a placeholder so @cloudflare/vite-plugin's main field validation passes.
-        # astro build replaces it with the real worker entry.
+        run: cd apps/web && pnpm run build
 
       - name: Typecheck
         run: pnpm run typecheck
@@ -46,7 +41,12 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
       - name: Deploy web
-        run: cd apps/web && npx wrangler deploy
+        run: |
+          cd apps/web
+          # Add main field back for wrangler deploy (removed from config to avoid
+          # vite-plugin validation during build; the file now exists post-build)
+          sed -i 's/"nodejs_compat"/"nodejs_compat",\n  "main": ".\/dist\/_worker.js\/index.js"/' wrangler.jsonc
+          npx wrangler deploy
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
