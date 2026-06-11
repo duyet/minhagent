@@ -1,0 +1,22 @@
+{
+  "name": "minhagent-web",
+  "compatibility_date": "2026-06-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "main": "./dist/_worker.js/index.js",
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS"
+  },
+  "observability": {
+    "enabled": true
+  },
+  "kv_namespaces": [
+    {
+      "binding": "OAUTH_KV",
+      "id": "TODO_CREATE_WITH_wrangler_kv_namespace_create"
+    }
+  ],
+  "vars": {
+    "PUBLIC_CLERK_PUBLISHABLE_KEY": "pk_test_TODO"
+  }
+}
