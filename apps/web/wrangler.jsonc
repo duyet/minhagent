@@ -20,6 +20,6 @@
     }
   ],
   "vars": {
-    "PUBLIC_CLERK_PUBLISHABLE_KEY": "pk_test_TODO"
+    "PUBLIC_CLERK_PUBLISHABLE_KEY": "pk_live_Y2xlcmsubWluaGFnZW50LmRldiQ"
   }
 }
