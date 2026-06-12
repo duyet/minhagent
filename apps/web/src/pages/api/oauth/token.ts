@@ -6,6 +6,7 @@ import {
   verifyPKCE,
   storeToken,
   generateTokenId,
+  grantExists,
 } from '../../../lib/oauth';
 
 function json(data: unknown, status = 200) {
@@ -76,6 +77,12 @@ export const POST: APIRoute = async ({ request, locals }) => {
       return json({ error: 'invalid_grant', error_description: 'Refresh token not found' }, 400);
     }
     const record = JSON.parse(raw) as { userId: string; scope: string; tokenId: string };
+
+    // A revoked grant must not be resurrectable via its refresh token
+    if (!(await grantExists(kv, record.userId, record.tokenId))) {
+      await kv.delete(`refresh:${refreshToken}`);
+      return json({ error: 'invalid_grant', error_description: 'Grant has been revoked' }, 400);
+    }
 
     const newAccessToken = `at_${crypto.randomUUID().replace(/-/g, '')}`;
     await storeToken(kv, newAccessToken, {

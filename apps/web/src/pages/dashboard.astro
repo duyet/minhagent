@@ -8,23 +8,45 @@ if (!auth.userId) {
 }
 
 const { userId } = auth;
+const user = await Astro.locals.currentUser();
+const displayName = user?.fullName ?? user?.emailAddresses[0]?.emailAddress ?? userId;
+
 const kv = Astro.locals.runtime.env.OAUTH_KV;
 
 // Load connected apps (grants)
 const grantListRaw = await kv.list({ prefix: `grant:${userId}:` });
-const grants = grantListRaw.keys.map((k) => k.name.split(':')[2]);
+const grants = grantListRaw.keys.map((k) => k.name.slice(`grant:${userId}:`.length));
 
 // Load stored gateway key (masked)
 const gatewayRaw = await kv.get(`gateway:${userId}`);
-const gateway = gatewayRaw ? JSON.parse(gatewayRaw) : null;
+const gateway = gatewayRaw
+  ? (JSON.parse(gatewayRaw) as { provider: string; apiKey: string })
+  : null;
+
+// One-shot feedback from form actions (see /api/gateway and /api/oauth/revoke)
+const statusMessages: Record<string, string> = {
+  saved: 'Gateway key saved.',
+  removed: 'Gateway key removed.',
+  revoked: 'App access revoked.',
+};
+const errorMessages: Record<string, string> = {
+  invalid_input: 'Invalid input — please check the form and try again.',
+};
+const statusParam = Astro.url.searchParams.get('status') ?? '';
+const errorParam = Astro.url.searchParams.get('error') ?? '';
+const notice = statusMessages[statusParam] ?? null;
+const errorNotice = errorMessages[errorParam] ?? (errorParam ? 'Something went wrong.' : null);
 ---
 
 <BaseLayout title="Dashboard — MinhAgent" auth={true} fullWidth={true}>
   <div class="dashboard">
     <div class="dashboard-header">
       <h1>Dashboard</h1>
-      <p class="greeting">Signed in as user {userId}</p>
+      <p class="greeting">Signed in as {displayName}</p>
     </div>
+
+    {notice && <p class="notice notice-success" role="status">{notice}</p>}
+    {errorNotice && <p class="notice notice-error" role="alert">{errorNotice}</p>}
 
     <section id="connected-apps">
       <h2>Connected Apps</h2>
@@ -34,8 +56,12 @@ const gateway = gatewayRaw ? JSON.parse(gatewayRaw) : null;
             <ul class="grant-list">
               {grants.map((g) => (
                 <li class="grant-item">
-                  <span class="dot" />
-                  <span>MinhAgent.app — token {g.slice(0, 8)}…</span>
+                  <span class="dot" aria-hidden="true" />
+                  <span class="grant-name">MinhAgent.app — grant {g.slice(0, 8)}…</span>
+                  <form method="POST" action="/api/oauth/revoke">
+                    <input type="hidden" name="token_id" value={g} />
+                    <button type="submit" class="btn-danger-ghost">Revoke</button>
+                  </form>
                 </li>
               ))}
             </ul>
@@ -50,24 +76,30 @@ const gateway = gatewayRaw ? JSON.parse(gatewayRaw) : null;
       <h2>LLM Gateway</h2>
       <div class="card">
         {gateway && (
-          <p class="current-key">
-            Current key: {gateway.provider} — {(gateway.apiKey as string).slice(0, 8)}…
-          </p>
+          <div class="current-key-row">
+            <p class="current-key">
+              Current key: {gateway.provider} — ••••{gateway.apiKey.slice(-4)}
+            </p>
+            <form method="POST" action="/api/gateway">
+              <input type="hidden" name="intent" value="delete" />
+              <button type="submit" class="btn-danger-ghost">Remove</button>
+            </form>
+          </div>
         )}
         <form method="POST" action="/api/gateway">
           <div>
             <label>
               Provider
               <select name="provider">
-                <option value="anyrouter">AnyRouter</option>
-                <option value="openrouter">OpenRouter</option>
+                <option value="anyrouter" selected={gateway?.provider === 'anyrouter'}>AnyRouter</option>
+                <option value="openrouter" selected={gateway?.provider === 'openrouter'}>OpenRouter</option>
               </select>
             </label>
           </div>
           <div>
             <label>
               API Key
-              <input type="password" name="apiKey" placeholder="sk-…" required />
+              <input type="password" name="apiKey" placeholder="sk-…" required autocomplete="off" />
             </label>
           </div>
           <button type="submit" class="btn-primary">Save key</button>
@@ -78,7 +110,7 @@ const gateway = gatewayRaw ? JSON.parse(gatewayRaw) : null;
     <section id="profile">
       <h2>Profile settings</h2>
       <div class="card">
-        <p class="empty">Profile management is handled by Clerk. Visit your Clerk user profile to update name, email, or connected accounts.</p>
+        <p class="empty">Profile management is handled by Clerk. Use the account menu in the top-right corner to update name, email, or connected accounts.</p>
       </div>
     </section>
   </div>
@@ -122,6 +154,26 @@ const gateway = gatewayRaw ? JSON.parse(gatewayRaw) : null;
     font-size: 0.85rem;
   }
 
+  /* Feedback notices */
+  .notice {
+    font-size: 0.85rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--radius);
+    margin-bottom: 1.5rem;
+  }
+
+  .notice-success {
+    color: var(--success);
+    background: rgba(48, 209, 88, 0.08);
+    border: 1px solid rgba(48, 209, 88, 0.25);
+  }
+
+  .notice-error {
+    color: var(--danger);
+    background: rgba(255, 69, 58, 0.08);
+    border: 1px solid rgba(255, 69, 58, 0.25);
+  }
+
   /* Grant list */
   .grant-list {
     list-style: none;
@@ -141,6 +193,10 @@ const gateway = gatewayRaw ? JSON.parse(gatewayRaw) : null;
     font-size: 0.85rem;
   }
 
+  .grant-name {
+    flex: 1;
+  }
+
   .dot {
     width: 7px;
     height: 7px;
@@ -149,15 +205,43 @@ const gateway = gatewayRaw ? JSON.parse(gatewayRaw) : null;
     flex-shrink: 0;
   }
 
+  .btn-danger-ghost {
+    background: none;
+    color: var(--danger);
+    border: 1px solid transparent;
+    border-radius: var(--radius);
+    padding: 0.25rem 0.6rem;
+    font-size: 0.8rem;
+    font-family: inherit;
+    cursor: pointer;
+    transition: border-color 0.15s;
+  }
+
+  .btn-danger-ghost:hover {
+    border-color: var(--danger);
+  }
+
   /* Gateway form */
   form {
     display: flex;
     flex-direction: column;
     gap: 0.85rem;
-    margin-top: 0;
+  }
+
+  .grant-item form,
+  .current-key-row form {
+    display: block;
+  }
+
+  .current-key-row {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 0.85rem;
   }
 
   .current-key {
+    flex: 1;
     font-size: 0.8rem;
     color: var(--muted);
     background: var(--bg);
@@ -165,10 +249,5 @@ const gateway = gatewayRaw ? JSON.parse(gatewayRaw) : null;
     border-radius: var(--radius);
     padding: 0.35rem 0.7rem;
     font-family: monospace;
-    margin-bottom: 0.5rem;
-  }
-
-  @media (max-width: 600px) {
-    .dashboard { padding: 0; }
   }
 </style>

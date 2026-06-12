@@ -67,3 +67,24 @@ export async function resolveToken(kv: KVNamespace, token: string): Promise<Toke
 export function generateTokenId(): string {
   return crypto.randomUUID();
 }
+
+export async function grantExists(
+  kv: KVNamespace,
+  userId: string,
+  tokenId: string,
+): Promise<boolean> {
+  return (await kv.get(`grant:${userId}:${tokenId}`)) !== null;
+}
+
+export async function revokeGrant(
+  kv: KVNamespace,
+  userId: string,
+  tokenId: string,
+): Promise<void> {
+  const grantKey = `grant:${userId}:${tokenId}`;
+  const accessToken = await kv.get(grantKey);
+  if (accessToken) {
+    await kv.delete(`token:${accessToken}`);
+  }
+  await kv.delete(grantKey);
+}
