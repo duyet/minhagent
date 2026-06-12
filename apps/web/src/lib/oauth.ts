@@ -15,6 +15,13 @@ export interface TokenRecord {
   tokenId: string;
 }
 
+export interface GrantRecord {
+  accessToken: string;
+  refreshToken: string;
+}
+
+export const TOKEN_TTL = 30 * 24 * 60 * 60; // 30 days
+
 const ALLOWED_CLIENT_IDS = ['minhagent-app'];
 const ALLOWED_REDIRECT_URIS = ['minhagent://oauth/callback'];
 
@@ -52,10 +59,59 @@ export async function storeToken(
   token: string,
   record: TokenRecord,
 ): Promise<void> {
-  await kv.put(`token:${token}`, JSON.stringify(record), { expirationTtl: 30 * 24 * 60 * 60 });
-  await kv.put(`grant:${record.userId}:${record.tokenId}`, token, {
-    expirationTtl: 30 * 24 * 60 * 60,
+  await kv.put(`token:${token}`, JSON.stringify(record), { expirationTtl: TOKEN_TTL });
+}
+
+export async function storeRefreshToken(
+  kv: KVNamespace,
+  refreshToken: string,
+  record: TokenRecord,
+): Promise<void> {
+  await kv.put(`refresh:${refreshToken}`, JSON.stringify(record), { expirationTtl: TOKEN_TTL });
+}
+
+export async function loadAndDeleteRefreshToken(
+  kv: KVNamespace,
+  refreshToken: string,
+): Promise<TokenRecord | null> {
+  const raw = await kv.get(`refresh:${refreshToken}`);
+  if (!raw) return null;
+  await kv.delete(`refresh:${refreshToken}`);
+  return JSON.parse(raw) as TokenRecord;
+}
+
+export async function storeGrant(
+  kv: KVNamespace,
+  userId: string,
+  tokenId: string,
+  record: GrantRecord,
+): Promise<void> {
+  await kv.put(`grant:${userId}:${tokenId}`, JSON.stringify(record), {
+    expirationTtl: TOKEN_TTL,
   });
+}
+
+export async function loadGrant(
+  kv: KVNamespace,
+  userId: string,
+  tokenId: string,
+): Promise<GrantRecord | null> {
+  const raw = await kv.get(`grant:${userId}:${tokenId}`);
+  if (!raw) return null;
+  return JSON.parse(raw) as GrantRecord;
+}
+
+export async function revokeGrant(
+  kv: KVNamespace,
+  userId: string,
+  tokenId: string,
+): Promise<void> {
+  const grant = await loadGrant(kv, userId, tokenId);
+  if (grant) {
+    await kv.delete(`token:${grant.accessToken}`);
+    await kv.delete(`refresh:${grant.refreshToken}`);
+  }
+  await kv.delete(`grant:${userId}:${tokenId}`);
 }
 
 export async function resolveToken(kv: KVNamespace, token: string): Promise<TokenRecord | null> {
