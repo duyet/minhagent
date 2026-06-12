@@ -16,14 +16,21 @@ export const POST: APIRoute = async ({ request, locals, redirect }) => {
   const scope = form.get('scope') as string;
   const state = form.get('state') as string;
   const codeChallenge = form.get('code_challenge') as string;
+  const codeChallengeMethod = form.get('code_challenge_method') as string;
 
   if (!validateClient(clientId, redirectUri)) {
     return new Response('Invalid client', { status: 400 });
   }
 
+  // /api/oauth/authorize enforces this too, but this endpoint accepts direct POSTs
+  if (!codeChallenge || codeChallengeMethod !== 'S256') {
+    return new Response('PKCE S256 required', { status: 400 });
+  }
+
   const callbackUrl = new URL(redirectUri);
 
-  if (decision === 'deny') {
+  // Only an explicit "allow" authorizes; anything else is a denial
+  if (decision !== 'allow') {
     callbackUrl.searchParams.set('error', 'access_denied');
     if (state) callbackUrl.searchParams.set('state', state);
     return redirect(callbackUrl.toString(), 302);

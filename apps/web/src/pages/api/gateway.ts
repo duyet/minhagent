@@ -2,28 +2,35 @@ export const prerender = false;
 
 import type { APIRoute } from 'astro';
 
+const ALLOWED_PROVIDERS = ['anyrouter', 'openrouter'];
+
 export const POST: APIRoute = async ({ request, locals, redirect }) => {
   const auth = locals.auth();
   if (!auth.userId) {
-    return new Response(JSON.stringify({ error: 'unauthorized' }), {
-      status: 401,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return redirect('/login', 303);
   }
 
   const form = await request.formData();
-  const provider = form.get('provider') as string;
-  const apiKey = form.get('apiKey') as string;
+  const kv = locals.runtime.env.OAUTH_KV;
 
-  if (!provider || !apiKey) {
-    return new Response(JSON.stringify({ error: 'missing fields' }), {
-      status: 400,
-      headers: { 'Content-Type': 'application/json' },
-    });
+  if (form.get('intent') === 'delete') {
+    await kv.delete(`gateway:${auth.userId}`);
+    return redirect('/dashboard?status=removed', 303);
   }
 
-  const kv = locals.runtime.env.OAUTH_KV;
-  await kv.put(`gateway:${auth.userId}`, JSON.stringify({ provider, apiKey }));
+  const providerRaw = form.get('provider');
+  const apiKeyRaw = form.get('apiKey');
+  if (typeof providerRaw !== 'string' || typeof apiKeyRaw !== 'string') {
+    return redirect('/dashboard?error=invalid_input', 303);
+  }
 
-  return redirect('/dashboard', 303);
+  const provider = providerRaw.trim();
+  const apiKey = apiKeyRaw.trim();
+
+  if (!ALLOWED_PROVIDERS.includes(provider) || !apiKey) {
+    return redirect('/dashboard?error=invalid_input', 303);
+  }
+
+  await kv.put(`gateway:${auth.userId}`, JSON.stringify({ provider, apiKey }));
+  return redirect('/dashboard?status=saved', 303);
 };
