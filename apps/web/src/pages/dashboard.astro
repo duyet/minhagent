@@ -58,7 +58,11 @@ const errorNotice = errorMessages[errorParam] ?? (errorParam ? 'Something went w
                 <li class="grant-item">
                   <span class="dot" aria-hidden="true" />
                   <span class="grant-name">MinhAgent.app — grant {g.slice(0, 8)}…</span>
-                  <form method="POST" action="/api/oauth/revoke">
+                  <form
+                    method="POST"
+                    action="/api/oauth/revoke"
+                    onsubmit="return confirm('Revoke this app’s access?');"
+                  >
                     <input type="hidden" name="token_id" value={g} />
                     <button type="submit" class="btn-danger-ghost">Revoke</button>
                   </form>
@@ -80,7 +84,11 @@ const errorNotice = errorMessages[errorParam] ?? (errorParam ? 'Something went w
             <p class="current-key">
               Current key: {gateway.provider} — ••••{gateway.apiKey.slice(-4)}
             </p>
-            <form method="POST" action="/api/gateway">
+            <form
+              method="POST"
+              action="/api/gateway"
+              onsubmit="return confirm('Remove your gateway key?');"
+            >
               <input type="hidden" name="intent" value="delete" />
               <button type="submit" class="btn-danger-ghost">Remove</button>
             </form>
@@ -99,7 +107,7 @@ const errorNotice = errorMessages[errorParam] ?? (errorParam ? 'Something went w
           <div>
             <label>
               API Key
-              <input type="password" name="apiKey" placeholder="sk-…" required autocomplete="off" />
+              <input type="password" name="apiKey" placeholder="sk-…" required autocomplete="new-password" />
             </label>
           </div>
           <button type="submit" class="btn-primary">Save key</button>

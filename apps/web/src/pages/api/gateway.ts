@@ -18,8 +18,14 @@ export const POST: APIRoute = async ({ request, locals, redirect }) => {
     return redirect('/dashboard?status=removed', 303);
   }
 
-  const provider = String(form.get('provider') ?? '').trim();
-  const apiKey = String(form.get('apiKey') ?? '').trim();
+  const providerRaw = form.get('provider');
+  const apiKeyRaw = form.get('apiKey');
+  if (typeof providerRaw !== 'string' || typeof apiKeyRaw !== 'string') {
+    return redirect('/dashboard?error=invalid_input', 303);
+  }
+
+  const provider = providerRaw.trim();
+  const apiKey = apiKeyRaw.trim();
 
   if (!ALLOWED_PROVIDERS.includes(provider) || !apiKey) {
     return redirect('/dashboard?error=invalid_input', 303);

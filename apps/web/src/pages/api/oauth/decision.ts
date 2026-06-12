@@ -29,7 +29,8 @@ export const POST: APIRoute = async ({ request, locals, redirect }) => {
 
   const callbackUrl = new URL(redirectUri);
 
-  if (decision === 'deny') {
+  // Only an explicit "allow" authorizes; anything else is a denial
+  if (decision !== 'allow') {
     callbackUrl.searchParams.set('error', 'access_denied');
     if (state) callbackUrl.searchParams.set('state', state);
     return redirect(callbackUrl.toString(), 302);

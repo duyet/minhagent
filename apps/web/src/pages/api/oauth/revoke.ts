@@ -10,11 +10,11 @@ export const POST: APIRoute = async ({ request, locals, redirect }) => {
   }
 
   const form = await request.formData();
-  const tokenId = String(form.get('token_id') ?? '').trim();
-  if (!tokenId) {
+  const tokenIdRaw = form.get('token_id');
+  if (typeof tokenIdRaw !== 'string' || !tokenIdRaw.trim()) {
     return redirect('/dashboard?error=invalid_input', 303);
   }
 
-  await revokeGrant(locals.runtime.env.OAUTH_KV, auth.userId, tokenId);
+  await revokeGrant(locals.runtime.env.OAUTH_KV, auth.userId, tokenIdRaw.trim());
   return redirect('/dashboard?status=revoked', 303);
 };
