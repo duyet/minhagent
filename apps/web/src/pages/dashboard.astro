@@ -19,9 +19,13 @@ const grants = grantListRaw.keys.map((k) => k.name.slice(`grant:${userId}:`.leng
 
 // Load stored gateway key (masked)
 const gatewayRaw = await kv.get(`gateway:${userId}`);
-const gateway = gatewayRaw
-  ? (JSON.parse(gatewayRaw) as { provider: string; apiKey: string })
-  : null;
+const gateway = (() => {
+  try {
+    return gatewayRaw ? (JSON.parse(gatewayRaw) as { provider: string; apiKey: string }) : null;
+  } catch {
+    return null;
+  }
+})();
 
 // One-shot feedback from form actions (see /api/gateway and /api/oauth/revoke)
 const statusMessages: Record<string, string> = {
@@ -82,7 +86,7 @@ const errorNotice = errorMessages[errorParam] ?? (errorParam ? 'Something went w
         {gateway && (
           <div class="current-key-row">
             <p class="current-key">
-              Current key: {gateway.provider} — ••••{gateway.apiKey.slice(-4)}
+              Current key: {gateway.provider} — ••••{gateway.apiKey?.slice(-4) ?? ''}
             </p>
             <form
               method="POST"
