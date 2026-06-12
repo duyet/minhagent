@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "deploy": "astro build && wrangler deploy dist/_worker.js/index.js",
+    "deploy": "astro build && wrangler deploy",
     "typecheck": "astro check"
   },
   "dependencies": {
