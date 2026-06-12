@@ -82,9 +82,11 @@ export const POST: APIRoute = async ({ request, locals }) => {
     }
 
     const oldGrant = await loadGrant(kv, record.userId, record.tokenId);
-    if (oldGrant) {
-      await kv.delete(`token:${oldGrant.accessToken}`);
+    if (!oldGrant) {
+      // Grant was revoked or expired — refuse to resurrect the session.
+      return json({ error: 'invalid_grant', error_description: 'Grant not found or revoked' }, 400);
     }
+    await kv.delete(`token:${oldGrant.accessToken}`);
 
     const newAccessToken = `at_${crypto.randomUUID().replace(/-/g, '')}`;
     const newRefreshToken = `rt_${crypto.randomUUID().replace(/-/g, '')}`;
