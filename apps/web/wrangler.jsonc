@@ -2,8 +2,9 @@
   "name": "minhagent-web",
   "compatibility_date": "2026-06-01",
   "compatibility_flags": ["nodejs_compat"],
-  // No "main" here: @astrojs/cloudflare v13 generates dist/server/wrangler.json
-  // and a .wrangler/deploy/config.json redirect that `wrangler deploy` follows.
+  // "main" is intentionally omitted: @astrojs/cloudflare's vite plugin validates
+  // it against the filesystem before dist/ exists. The entry point is passed
+  // positionally at deploy time: `wrangler deploy dist/_worker.js/index.js`.
   "assets": {
     "directory": "./dist",
     "binding": "ASSETS"

@@ -5,8 +5,12 @@ import {
   loadAndDeleteCode,
   verifyPKCE,
   storeToken,
+  storeRefreshToken,
+  loadAndDeleteRefreshToken,
+  storeGrant,
+  loadGrant,
   generateTokenId,
-  grantExists,
+  TOKEN_TTL,
 } from '../../../lib/oauth';
 
 function json(data: unknown, status = 200) {
@@ -53,48 +57,52 @@ export const POST: APIRoute = async ({ request, locals }) => {
     const tokenId = generateTokenId();
     const accessToken = `at_${crypto.randomUUID().replace(/-/g, '')}`;
     const refreshToken = `rt_${crypto.randomUUID().replace(/-/g, '')}`;
+    const tokenRecord = { userId: record.userId, scope: record.scope, tokenId };
 
-    await storeToken(kv, accessToken, { userId: record.userId, scope: record.scope, tokenId });
-    await kv.put(
-      `refresh:${refreshToken}`,
-      JSON.stringify({ userId: record.userId, scope: record.scope, tokenId }),
-      { expirationTtl: 30 * 24 * 60 * 60 },
-    );
+    await storeToken(kv, accessToken, tokenRecord);
+    await storeRefreshToken(kv, refreshToken, tokenRecord);
+    await storeGrant(kv, record.userId, tokenId, { accessToken, refreshToken });
 
     return json({
       access_token: accessToken,
       refresh_token: refreshToken,
       token_type: 'Bearer',
-      expires_in: 30 * 24 * 60 * 60,
+      expires_in: TOKEN_TTL,
       scope: record.scope,
     });
   }
 
   if (grantType === 'refresh_token') {
     const refreshToken = params.get('refresh_token') ?? '';
-    const raw = await kv.get(`refresh:${refreshToken}`);
-    if (!raw) {
+    // Rotation: a refresh token is single-use. Consuming it invalidates the
+    // old token pair and issues a fresh one.
+    const record = await loadAndDeleteRefreshToken(kv, refreshToken);
+    if (!record) {
       return json({ error: 'invalid_grant', error_description: 'Refresh token not found' }, 400);
     }
-    const record = JSON.parse(raw) as { userId: string; scope: string; tokenId: string };
 
-    // A revoked grant must not be resurrectable via its refresh token
-    if (!(await grantExists(kv, record.userId, record.tokenId))) {
-      await kv.delete(`refresh:${refreshToken}`);
-      return json({ error: 'invalid_grant', error_description: 'Grant has been revoked' }, 400);
+    const oldGrant = await loadGrant(kv, record.userId, record.tokenId);
+    if (!oldGrant) {
+      // Grant was revoked or expired — refuse to resurrect the session.
+      return json({ error: 'invalid_grant', error_description: 'Grant not found or revoked' }, 400);
     }
+    await kv.delete(`token:${oldGrant.accessToken}`);
 
     const newAccessToken = `at_${crypto.randomUUID().replace(/-/g, '')}`;
-    await storeToken(kv, newAccessToken, {
-      userId: record.userId,
-      scope: record.scope,
-      tokenId: record.tokenId,
+    const newRefreshToken = `rt_${crypto.randomUUID().replace(/-/g, '')}`;
+
+    await storeToken(kv, newAccessToken, record);
+    await storeRefreshToken(kv, newRefreshToken, record);
+    await storeGrant(kv, record.userId, record.tokenId, {
+      accessToken: newAccessToken,
+      refreshToken: newRefreshToken,
     });
 
     return json({
       access_token: newAccessToken,
+      refresh_token: newRefreshToken,
       token_type: 'Bearer',
-      expires_in: 30 * 24 * 60 * 60,
+      expires_in: TOKEN_TTL,
       scope: record.scope,
     });
   }

@@ -41,9 +41,7 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
       - name: Deploy web
-        # Uses the .wrangler/deploy/config.json redirect emitted by the build,
-        # which points wrangler at the generated dist/server/wrangler.json.
-        run: cd apps/web && npx wrangler deploy
+        run: cd apps/web && npx wrangler deploy dist/_worker.js/index.js
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
