@@ -41,6 +41,9 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
       - name: Deploy web
+        # @astrojs/cloudflare v13 emits dist/server/wrangler.json plus a
+        # .wrangler/deploy/config.json redirect that plain `wrangler deploy`
+        # follows; the old dist/_worker.js layout no longer exists.
         run: cd apps/web && npx wrangler deploy
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}

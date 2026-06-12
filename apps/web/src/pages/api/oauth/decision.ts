@@ -22,9 +22,16 @@ export const POST: APIRoute = async ({ request, locals, redirect }) => {
     return new Response('Invalid client', { status: 400 });
   }
 
-  // /api/oauth/authorize enforces this too, but this endpoint accepts direct POSTs
-  if (!codeChallenge || codeChallengeMethod !== 'S256') {
-    return new Response('PKCE S256 required', { status: 400 });
+  // Runtime type validation — this endpoint accepts direct POSTs
+  if (
+    typeof clientId !== 'string' ||
+    typeof redirectUri !== 'string' ||
+    typeof decision !== 'string' ||
+    typeof codeChallenge !== 'string' ||
+    typeof codeChallengeMethod !== 'string' ||
+    codeChallengeMethod !== 'S256'
+  ) {
+    return new Response('Invalid request parameters or PKCE S256 required', { status: 400 });
   }
 
   const callbackUrl = new URL(redirectUri);
