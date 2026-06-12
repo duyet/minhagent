@@ -36,6 +36,10 @@ const gateway = gatewayRaw ? JSON.parse(gatewayRaw) : null;
                 <li class="grant-item">
                   <span class="dot" />
                   <span>MinhAgent.app — token {g.slice(0, 8)}…</span>
+                  <form method="POST" action="/api/oauth/revoke" class="revoke-form">
+                    <input type="hidden" name="tokenId" value={g} />
+                    <button type="submit" class="btn-revoke">Revoke</button>
+                  </form>
                 </li>
               ))}
             </ul>
@@ -147,6 +151,27 @@ const gateway = gatewayRaw ? JSON.parse(gatewayRaw) : null;
     background: var(--success);
     border-radius: 50%;
     flex-shrink: 0;
+  }
+
+  .revoke-form {
+    margin-left: auto;
+    flex-direction: row;
+    gap: 0;
+  }
+
+  .btn-revoke {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.6rem;
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    cursor: pointer;
+  }
+
+  .btn-revoke:hover {
+    color: var(--danger, #c0392b);
+    border-color: currentColor;
   }
 
   /* Gateway form */
