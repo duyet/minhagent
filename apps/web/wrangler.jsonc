@@ -3,8 +3,9 @@
   "compatibility_date": "2026-06-01",
   "compatibility_flags": ["nodejs_compat"],
   // "main" is intentionally omitted: @astrojs/cloudflare's vite plugin validates
-  // it against the filesystem before dist/ exists. The entry point is passed
-  // positionally at deploy time: `wrangler deploy dist/_worker.js/index.js`.
+  // it against the filesystem before dist/ exists. At deploy time, plain
+  // `wrangler deploy` follows the .wrangler/deploy/config.json redirect emitted
+  // by the build, which points at the generated dist/server/wrangler.json.
   "assets": {
     "directory": "./dist",
     "binding": "ASSETS"
