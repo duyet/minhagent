@@ -30,6 +30,12 @@ jobs:
 
       - name: Build web
         run: cd apps/web && pnpm run build
+        # Clerk's publishable key is a public value (also in wrangler.jsonc
+        # vars). Astro only inlines PUBLIC_* env into the client bundle at
+        # build time, so prerendered pages need it here too — otherwise the
+        # Clerk client script throws "Missing publishableKey" on static pages.
+        env:
+          PUBLIC_CLERK_PUBLISHABLE_KEY: pk_live_Y2xlcmsubWluaGFnZW50LmRldiQ
 
       - name: Typecheck
         run: pnpm run typecheck
