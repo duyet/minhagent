@@ -73,12 +73,12 @@ jobs:
           node-version: 22
           cache: pnpm
 
+      # Install + build must fail the job — never package a release from a
+      # failed dependency install or build.
       - name: Install dependencies
-        continue-on-error: true
         run: pnpm install --frozen-lockfile
 
       - name: Build
-        continue-on-error: true
         run: pnpm build
 
       - name: Package artifacts
