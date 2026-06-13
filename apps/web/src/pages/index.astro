@@ -3,19 +3,14 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
 const features = [
   {
-    title: 'GitHub automation',
+    title: 'Private by default',
     description:
-      'A webhook receiver routes repository events into Cloudflare Workflows — triage, labels, and PR checks run without a server to babysit.',
+      'Run on-device with Apple’s local foundation model, or route through AnyRouter — a secure LLM API that spreads requests across providers. Your data and keys stay yours.',
   },
   {
-    title: 'LLM gateway',
+    title: 'Native Apple apps',
     description:
-      'Connect one AnyRouter key and reach every model. Requests route by cost and availability; your key never leaves your account.',
-  },
-  {
-    title: 'Native apps',
-    description:
-      'A first-class Mac and iPhone client authenticates over OAuth 2.0 with PKCE — Shortcuts, Focus, and notifications included.',
+      'First-class macOS and iOS clients, signed in over OAuth 2.0 with PKCE.',
   },
 ];
 ---
@@ -23,10 +18,9 @@ const features = [
 <BaseLayout>
   <section class="hero">
     <p class="eyebrow">Early access</p>
-    <h1>AI tooling that runs where you work.</h1>
+    <h1>A private AI assistant for your Apple devices.</h1>
     <p class="lede">
-      MinhAgent wires your GitHub events, an LLM gateway, and native Apple apps into one
-      account — built on Cloudflare Workers, not a rented backend.
+      Run on-device or route through a secure gateway — your choice, one account.
     </p>
     <div class="actions">
       <a href="/dashboard" class="btn-primary">Open dashboard</a>
@@ -48,16 +42,6 @@ const features = [
         ))
       }
     </ol>
-  </section>
-
-  <section class="connect">
-    <div class="connect-head">
-      <h2>Connect in one call</h2>
-      <p>Native clients authenticate with OAuth 2.0 PKCE and read your gateway config.</p>
-    </div>
-    <pre class="snippet"><code><span class="c-comment"># after the PKCE handshake</span>
-<span class="c-cmd">curl</span> https://minhagent.dev/api/me/anyrouter \
-  -H <span class="c-str">"Authorization: Bearer $TOKEN"</span></code></pre>
   </section>
 </BaseLayout>
 
@@ -142,37 +126,4 @@ const features = [
     line-height: 1.6;
     max-width: 560px;
   }
-
-  /* Connect */
-  .connect {
-    padding: 1.5rem 0 1rem;
-  }
-
-  .connect-head h2 {
-    font-size: 1.05rem;
-    font-weight: 640;
-    letter-spacing: -0.02em;
-    margin-bottom: 0.3rem;
-  }
-  .connect-head p {
-    color: var(--muted);
-    font-size: 0.875rem;
-    margin-bottom: 1rem;
-  }
-
-  .snippet {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    padding: 1rem 1.1rem;
-    overflow-x: auto;
-    font-family: var(--mono);
-    font-size: 0.8rem;
-    line-height: 1.7;
-    color: var(--text);
-  }
-  .snippet code { font-family: inherit; }
-  .c-comment { color: var(--muted); }
-  .c-cmd { color: var(--accent); }
-  .c-str { color: var(--success); }
 </style>
