@@ -2,8 +2,9 @@ export const prerender = false;
 
 import type { APIRoute } from 'astro';
 import { resolveToken } from '../../../lib/oauth';
+import { getOAuthKV } from '../../../lib/runtime';
 
-export const GET: APIRoute = async ({ request, locals }) => {
+export const GET: APIRoute = async ({ request }) => {
   const authHeader = request.headers.get('Authorization') ?? '';
   const token = authHeader.replace(/^Bearer\s+/i, '').trim();
 
@@ -14,7 +15,7 @@ export const GET: APIRoute = async ({ request, locals }) => {
     });
   }
 
-  const kv = locals.runtime.env.OAUTH_KV;
+  const kv = getOAuthKV();
   const tokenRecord = await resolveToken(kv, token);
   if (!tokenRecord) {
     return new Response(JSON.stringify({ error: 'invalid_token' }), {

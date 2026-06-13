@@ -1,0 +1,177 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const sections = [
+  { id: 'overview', label: 'Overview' },
+  { id: 'github', label: 'GitHub automation' },
+  { id: 'gateway', label: 'LLM gateway' },
+  { id: 'oauth', label: 'OAuth & native apps' },
+  { id: 'dashboard', label: 'Dashboard' },
+];
+---
+
+<BaseLayout title="Docs — MinhAgent" description="MinhAgent documentation: GitHub automation, the LLM gateway, OAuth, and the dashboard." fullWidth={true}>
+  <div class="docs">
+    <aside class="docs-nav">
+      <p class="docs-nav-title">Documentation</p>
+      <nav>
+        {sections.map((s) => <a href={`#${s.id}`}>{s.label}</a>)}
+      </nav>
+    </aside>
+
+    <article class="docs-body">
+      <header class="docs-header">
+        <h1>Documentation</h1>
+        <p>How MinhAgent's pieces fit together — and how to wire your own client to them.</p>
+      </header>
+
+      <section id="overview">
+        <h2>Overview</h2>
+        <p>
+          MinhAgent runs as two Cloudflare Workers: a web app at <code>minhagent.dev</code> and a
+          GitHub webhook receiver. Authentication is handled by Clerk; the web app also acts as an
+          OAuth 2.0 provider so native clients can sign in and read your configuration.
+        </p>
+      </section>
+
+      <section id="github">
+        <h2>GitHub automation</h2>
+        <p>
+          The webhook worker verifies each delivery's <code>HMAC-SHA256</code> signature against your
+          <code>GITHUB_WEBHOOK_SECRET</code>, then routes the event into a Cloudflare Workflow. Point a
+          repository or org webhook at the receiver and pick the events you care about.
+        </p>
+        <pre class="snippet"><code><span class="c-comment"># webhook endpoint</span>
+https://minhagent-webhook.duyet.workers.dev</code></pre>
+      </section>
+
+      <section id="gateway">
+        <h2>LLM gateway</h2>
+        <p>
+          Store one provider key (AnyRouter or OpenRouter) from the dashboard. Native clients fetch it
+          over an authorized request and route model calls through it — the key stays in your account
+          and never ships with the app.
+        </p>
+      </section>
+
+      <section id="oauth">
+        <h2>OAuth &amp; native apps</h2>
+        <p>
+          The native client (<code>minhagent-app</code>) uses OAuth 2.0 with PKCE, redirecting to
+          <code>minhagent://oauth/callback</code>. After consent, exchange the code for tokens and call
+          the API with a bearer token.
+        </p>
+        <pre class="snippet"><code><span class="c-cmd">curl</span> https://minhagent.dev/api/me/anyrouter \
+  -H <span class="c-str">"Authorization: Bearer $TOKEN"</span></code></pre>
+        <p class="note">Refresh tokens are single-use and rotate on every exchange. Revoking a grant from the dashboard invalidates its token pair immediately.</p>
+      </section>
+
+      <section id="dashboard">
+        <h2>Dashboard</h2>
+        <p>
+          The <a href="/dashboard">dashboard</a> is where you save or remove your gateway key and review
+          connected apps. Each connected app can be revoked individually.
+        </p>
+      </section>
+    </article>
+  </div>
+</BaseLayout>
+
+<style>
+  .docs {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 2.5rem;
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 1rem 1.5rem 3rem;
+  }
+
+  .docs-nav {
+    position: sticky;
+    top: 4rem;
+    align-self: start;
+  }
+  .docs-nav-title {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.75rem;
+  }
+  .docs-nav nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+  }
+  .docs-nav a {
+    color: var(--muted);
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+  }
+  .docs-nav a:hover { color: var(--text); text-decoration: none; }
+
+  .docs-header {
+    padding-bottom: 1.5rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .docs-header h1 {
+    font-size: 1.6rem;
+    font-weight: 680;
+    letter-spacing: -0.03em;
+    margin-bottom: 0.4rem;
+  }
+  .docs-header p { color: var(--muted); font-size: 0.9rem; }
+
+  .docs-body section { margin-bottom: 2rem; scroll-margin-top: 4rem; }
+  .docs-body h2 {
+    font-size: 1.05rem;
+    font-weight: 640;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.6rem;
+  }
+  .docs-body p {
+    color: var(--muted);
+    font-size: 0.9rem;
+    line-height: 1.7;
+    margin-bottom: 0.75rem;
+    max-width: 620px;
+  }
+  .docs-body code {
+    font-family: var(--mono);
+    font-size: 0.82em;
+    background: var(--surface-2);
+    padding: 0.1rem 0.35rem;
+    border-radius: 5px;
+    color: var(--text);
+  }
+  .note {
+    border-left: 2px solid var(--accent-border);
+    padding-left: 0.9rem;
+    font-size: 0.85rem !important;
+  }
+
+  .snippet {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 0.9rem 1.1rem;
+    overflow-x: auto;
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    line-height: 1.7;
+    margin-bottom: 0.75rem;
+  }
+  .snippet code { background: none; padding: 0; font-size: inherit; }
+  .c-comment { color: var(--muted); }
+  .c-cmd { color: var(--accent); }
+  .c-str { color: var(--success); }
+
+  @media (max-width: 700px) {
+    .docs { grid-template-columns: 1fr; gap: 1.25rem; }
+    .docs-nav { position: static; }
+    .docs-nav nav { flex-direction: row; flex-wrap: wrap; gap: 0.75rem; }
+  }
+</style>

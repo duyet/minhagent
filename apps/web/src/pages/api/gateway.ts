@@ -1,6 +1,7 @@
 export const prerender = false;
 
 import type { APIRoute } from 'astro';
+import { getOAuthKV } from '../../lib/runtime';
 
 const ALLOWED_PROVIDERS = ['anyrouter', 'openrouter'];
 
@@ -11,7 +12,7 @@ export const POST: APIRoute = async ({ request, locals, redirect }) => {
   }
 
   const form = await request.formData();
-  const kv = locals.runtime.env.OAUTH_KV;
+  const kv = getOAuthKV();
 
   if (form.get('intent') === 'delete') {
     await kv.delete(`gateway:${auth.userId}`);

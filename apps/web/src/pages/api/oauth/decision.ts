@@ -2,6 +2,7 @@ export const prerender = false;
 
 import type { APIRoute } from 'astro';
 import { validateClient, storeCode } from '../../../lib/oauth';
+import { getOAuthKV } from '../../../lib/runtime';
 
 export const POST: APIRoute = async ({ request, locals, redirect }) => {
   const auth = locals.auth();
@@ -44,7 +45,7 @@ export const POST: APIRoute = async ({ request, locals, redirect }) => {
   }
 
   const code = crypto.randomUUID();
-  const kv = locals.runtime.env.OAUTH_KV;
+  const kv = getOAuthKV();
 
   await storeCode(kv, code, {
     userId: auth.userId,

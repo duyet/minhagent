@@ -12,6 +12,7 @@ import {
   generateTokenId,
   TOKEN_TTL,
 } from '../../../lib/oauth';
+import { getOAuthKV } from '../../../lib/runtime';
 
 function json(data: unknown, status = 200) {
   return new Response(JSON.stringify(data), {
@@ -20,8 +21,8 @@ function json(data: unknown, status = 200) {
   });
 }
 
-export const POST: APIRoute = async ({ request, locals }) => {
-  const kv = locals.runtime.env.OAUTH_KV;
+export const POST: APIRoute = async ({ request }) => {
+  const kv = getOAuthKV();
   let params: URLSearchParams;
 
   const ct = request.headers.get('content-type') ?? '';
