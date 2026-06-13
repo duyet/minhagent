@@ -27,7 +27,7 @@ const signedIn = auth && authData?.userId;
     <meta name="color-scheme" content="light dark" />
     <title>{title}</title>
     <meta name="description" content={description} />
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%237c6aff'/><text x='50' y='72' font-size='62' font-family='-apple-system,system-ui,sans-serif' font-weight='700' fill='white' text-anchor='middle'>M</text></svg>" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23111111'/><text x='50' y='72' font-size='62' font-family='-apple-system,system-ui,sans-serif' font-weight='700' fill='white' text-anchor='middle'>M</text></svg>" />
     <script is:inline>
       // Apply stored theme before paint to avoid a flash. Absent = follow system.
       (() => {
@@ -76,21 +76,21 @@ const signedIn = auth && authData?.userId;
 
       :root {
         --bg: #ffffff;
-        --surface: #f5f5f7;
-        --surface-2: #ececee;
-        --border: #e5e5ea;
-        --text: #1d1d1f;
-        --muted: #6e6e73;
-        --accent: #7c6aff;
-        --accent-hover: #6b59e6;
-        --accent-dim: rgba(124, 106, 255, 0.08);
-        --accent-border: rgba(124, 106, 255, 0.2);
-        --success: #30d158;
-        --danger: #ff453a;
-        --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-        --mono: ui-monospace, 'SF Mono', 'JetBrains Mono', 'Menlo', monospace;
-        --radius: 8px;
-        --radius-lg: 12px;
+        --surface: #f6f6f6;
+        --surface-2: #ededed;
+        --border: #e2e2e2;
+        --text: #111111;
+        --muted: #6a6a6a;
+        --accent: #111111;
+        --accent-hover: #000000;
+        --accent-dim: rgba(0, 0, 0, 0.05);
+        --accent-border: rgba(0, 0, 0, 0.18);
+        --success: #6a6a6a;
+        --danger: #c0392b;
+        --mono: ui-monospace, 'SF Mono', 'JetBrains Mono', 'Menlo', 'Consolas', monospace;
+        --font: var(--mono);
+        --radius: 6px;
+        --radius-lg: 8px;
         color-scheme: light dark;
       }
 
@@ -98,34 +98,34 @@ const signedIn = auth && authData?.userId;
          the explicit data-theme="dark" override from the toggle. */
       @media (prefers-color-scheme: dark) {
         :root:not([data-theme='light']) {
-          --bg: #0e0e11;
-          --surface: #16161a;
-          --surface-2: #1e1e24;
-          --border: #2a2a32;
-          --text: #e8e8f0;
-          --muted: #8e8e9a;
-          --accent: #8f7fff;
-          --accent-hover: #a293ff;
-          --accent-dim: rgba(124, 106, 255, 0.12);
-          --accent-border: rgba(124, 106, 255, 0.28);
-          --success: #32d74b;
-          --danger: #ff453a;
+          --bg: #0a0a0a;
+          --surface: #141414;
+          --surface-2: #1c1c1c;
+          --border: #262626;
+          --text: #ededed;
+          --muted: #888888;
+          --accent: #ededed;
+          --accent-hover: #ffffff;
+          --accent-dim: rgba(255, 255, 255, 0.06);
+          --accent-border: rgba(255, 255, 255, 0.2);
+          --success: #888888;
+          --danger: #e57373;
         }
       }
 
       :root[data-theme='dark'] {
-        --bg: #0e0e11;
-        --surface: #16161a;
-        --surface-2: #1e1e24;
-        --border: #2a2a32;
-        --text: #e8e8f0;
-        --muted: #8e8e9a;
-        --accent: #8f7fff;
-        --accent-hover: #a293ff;
-        --accent-dim: rgba(124, 106, 255, 0.12);
-        --accent-border: rgba(124, 106, 255, 0.28);
-        --success: #32d74b;
-        --danger: #ff453a;
+        --bg: #0a0a0a;
+        --surface: #141414;
+        --surface-2: #1c1c1c;
+        --border: #262626;
+        --text: #ededed;
+        --muted: #888888;
+        --accent: #ededed;
+        --accent-hover: #ffffff;
+        --accent-dim: rgba(255, 255, 255, 0.06);
+        --accent-border: rgba(255, 255, 255, 0.2);
+        --success: #888888;
+        --danger: #e57373;
       }
 
       html {
@@ -173,7 +173,7 @@ const signedIn = auth && authData?.userId;
         height: 22px;
         border-radius: 6px;
         background: var(--accent);
-        color: #fff;
+        color: var(--bg);
         font-size: 0.8rem;
         font-weight: 700;
         line-height: 1;
@@ -199,35 +199,37 @@ const signedIn = auth && authData?.userId;
       }
       .nav-link:hover { color: var(--text); text-decoration: none; }
 
-      /* Icon button (theme toggle) */
+      /* Icon button (theme toggle) — borderless, minimal */
       .icon-btn {
         display: grid;
         place-items: center;
-        width: 32px;
-        height: 32px;
+        width: 30px;
+        height: 30px;
         border-radius: var(--radius);
         background: none;
-        border: 1px solid var(--border);
+        border: none;
         color: var(--muted);
         cursor: pointer;
-        transition: color 0.15s, border-color 0.15s, background 0.15s;
+        transition: color 0.15s, background 0.15s;
       }
-      .icon-btn:hover { color: var(--text); border-color: var(--accent-border); background: var(--surface); }
+      .icon-btn:hover { color: var(--text); background: var(--surface); }
+      .icon-btn:active { transform: scale(0.92); }
       .icon-btn svg { display: block; }
-      /* Show sun in dark mode (click → light), moon otherwise. */
-      .icon-sun { display: none; }
-      .icon-moon { display: block; }
-      :root[data-theme='dark'] .icon-sun { display: block; }
-      :root[data-theme='dark'] .icon-moon { display: none; }
+      /* Show sun in dark mode (click → light), moon otherwise.
+         Scoped under .icon-btn to outrank `.icon-btn svg { display: block }`. */
+      .icon-btn .icon-sun { display: none; }
+      .icon-btn .icon-moon { display: block; }
+      :root[data-theme='dark'] .icon-btn .icon-sun { display: block; }
+      :root[data-theme='dark'] .icon-btn .icon-moon { display: none; }
       @media (prefers-color-scheme: dark) {
-        :root:not([data-theme='light']) .icon-sun { display: block; }
-        :root:not([data-theme='light']) .icon-moon { display: none; }
+        :root:not([data-theme='light']) .icon-btn .icon-sun { display: block; }
+        :root:not([data-theme='light']) .icon-btn .icon-moon { display: none; }
       }
 
       /* Buttons */
       .btn-primary {
         background: var(--accent);
-        color: #fff;
+        color: var(--bg);
         padding: 0.45rem 1rem;
         border-radius: var(--radius);
         font-size: 0.85rem;
