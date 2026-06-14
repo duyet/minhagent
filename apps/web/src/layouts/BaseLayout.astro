@@ -1,5 +1,6 @@
 ---
 import { Show, UserButton } from '@clerk/astro/components';
+import SupportChat from '../components/SupportChat.astro';
 
 interface Props {
   title?: string;
@@ -68,6 +69,8 @@ const {
         <a href="https://github.com/duyet/minhagent">GitHub</a>
       </div>
     </footer>
+
+    <SupportChat />
 
     <style is:global>
       *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -187,6 +190,28 @@ const {
         display: flex;
         align-items: center;
         gap: 0.6rem;
+      }
+
+      /* Clerk's <Show> wraps signed-in/out nav items in a <clerk-show> custom
+         element. align-items:center above only reaches direct children, so the
+         links + avatar inside the wrapper fell back to inline baseline alignment
+         — leaving the avatar high and the Profile/Dashboard links low. Promote
+         the host to a centered flex row so its children share one optical line
+         with the Docs link and theme toggle. */
+      .nav-right clerk-show {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+      }
+
+      /* The <UserButton> host is a <clerk-user-button> custom element. Left at
+         its default display it inherits the body line-height, inflating it past
+         the 32px avatar trigger and pinning the trigger to the top — so the
+         avatar sits ~3px above the links. Inline-flex shrinks the host to the
+         trigger height and centers it. */
+      .nav-right clerk-user-button {
+        display: inline-flex;
+        align-items: center;
       }
 
       .nav-link {

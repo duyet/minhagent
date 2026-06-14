@@ -1,6 +1,7 @@
 ---
 export const prerender = false;
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { UserProfile } from '@clerk/astro/components';
 import { getOAuthKV } from '../lib/runtime';
 import { resolveToken, type GrantRecord } from '../lib/oauth';
 
@@ -10,11 +11,6 @@ if (!auth.userId) {
 }
 
 const { userId } = auth;
-const user = await Astro.locals.currentUser();
-const displayName = user?.fullName ?? user?.emailAddresses?.[0]?.emailAddress ?? userId;
-const email = user?.primaryEmailAddress?.emailAddress ?? user?.emailAddresses?.[0]?.emailAddress ?? null;
-const avatar = user?.imageUrl ?? null;
-const memberSince = user?.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : null;
 
 const kv = getOAuthKV();
 
@@ -62,18 +58,9 @@ const notice = statusMessages[statusParam] ?? null;
     {notice && <p class="notice notice-success" role="status">{notice}</p>}
 
     <section>
-      <h2>Basic information</h2>
-      <div class="card identity">
-        {avatar
-          ? <img class="avatar" src={avatar} alt="" width="48" height="48" />
-          : <span class="avatar avatar-fallback" aria-hidden="true">{displayName.charAt(0).toUpperCase()}</span>}
-        <dl class="fields">
-          <div><dt>Name</dt><dd>{displayName}</dd></div>
-          {email && <div><dt>Email</dt><dd>{email}</dd></div>}
-          <div><dt>User ID</dt><dd class="mono">{userId}</dd></div>
-          {memberSince && <div><dt>Member since</dt><dd>{memberSince}</dd></div>}
-        </dl>
-      </div>
+      <h2>Account</h2>
+      <p class="section-hint">Manage your profile, security, and connected accounts — powered by Clerk.</p>
+      <UserProfile />
     </section>
 
     <section>
@@ -144,18 +131,8 @@ const notice = statusMessages[statusParam] ?? null;
   .notice { font-size: 0.85rem; padding: 0.5rem 0.75rem; border-radius: var(--radius); margin-bottom: 1.5rem; }
   .notice-success { color: var(--text); background: var(--accent-dim); border: 1px solid var(--accent-border); }
 
-  /* Identity */
-  .identity { display: flex; gap: 1rem; align-items: center; }
-  .avatar { border-radius: 50%; object-fit: cover; flex-shrink: 0; }
-  .avatar-fallback {
-    width: 48px; height: 48px; display: grid; place-items: center;
-    background: var(--accent); color: var(--bg); font-weight: 700; font-size: 1.1rem;
-  }
-  .fields { display: grid; grid-template-columns: auto 1fr; gap: 0.35rem 1.5rem; flex: 1; }
-  .fields > div { display: contents; }
-  .fields dt { color: var(--muted); font-size: 0.8rem; }
-  .fields dd { font-size: 0.85rem; }
-  .fields dd.mono { font-family: var(--mono); font-size: 0.78rem; word-break: break-all; }
+  /* Account section */
+  .section-hint { color: var(--muted); font-size: 0.8rem; margin-bottom: 0.75rem; }
 
   /* Permissions */
   .perm-list { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
@@ -186,8 +163,4 @@ const notice = statusMessages[statusParam] ?? null;
   }
   .btn-danger-ghost:hover { border-color: var(--danger); }
   .session-item form { display: block; }
-
-  @media (max-width: 560px) {
-    .identity { flex-direction: column; align-items: flex-start; }
-  }
 </style>

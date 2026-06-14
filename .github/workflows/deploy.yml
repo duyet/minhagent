@@ -8,6 +8,8 @@ on:
       - "package.json"
       - "pnpm-lock.yaml"
       - ".github/workflows/**"
+  # Manual re-deploy from the Actions tab (no code change required).
+  workflow_dispatch:
 
 concurrency:
   group: deploy-cloudflare
