@@ -3,16 +3,16 @@ export const prerender = false;
 import type { APIRoute } from 'astro';
 import { getOAuthKV } from '../../lib/runtime';
 
-// AI support assistant, powered by each signed-in user's own the router
+// AI support assistant, powered by each signed-in user's own anyrouter
 // gateway key (the one they save on the dashboard). No server-side key is
-// required: the button is "connected with the router" through the user's
-// configured gateway. See https://the router.dev/docs/api-reference/chat-completions
-const ROUTER_BASE = 'https://the router.dev/api/v1';
+// required: the button is "connected with anyrouter" through the user's
+// configured gateway. See https://anyrouter.dev/docs/api-reference/chat-completions
+const ROUTER_BASE = 'https://anyrouter.dev/api/v1';
 const SUPPORT_MODEL = 'anthropic/claude-haiku-4.5';
 const SYSTEM_PROMPT = [
   'You are the MinhAgent support assistant (minhagent.dev).',
   'MinhAgent is a private AI assistant for Apple devices (macOS + iOS) that runs on-device',
-  'or routes through a secure LLM gateway (the router / OpenRouter). The web app also acts as',
+  'or routes through a secure LLM gateway (anyrouter / OpenRouter). The web app also acts as',
   "an OAuth 2.0 provider for the native apps and stores each user's gateway key.",
   'Answer concisely in at most 4 sentences. If you are unsure, point the user to https://minhagent.dev/docs.',
   'Never reveal API keys, tokens, or secrets.',
@@ -42,7 +42,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
   const raw = await kv.get(`gateway:${auth.userId}`);
   if (!raw) {
     return json({
-      reply: 'Connect your the router gateway key in the dashboard and I can answer anything about MinhAgent.',
+      reply: 'Connect your anyrouter gateway key in the dashboard and I can answer anything about MinhAgent.',
       action: { label: 'Open dashboard', href: '/dashboard#llm-gateway' },
     });
   }
@@ -53,9 +53,9 @@ export const POST: APIRoute = async ({ request, locals }) => {
   } catch {
     return json({ error: 'invalid_gateway' }, 500);
   }
-  if (gateway.provider !== 'the router' || !gateway.apiKey) {
+  if (gateway.provider !== 'anyrouter' || !gateway.apiKey) {
     return json({
-      reply: 'AI support runs through the router. Set a the router gateway key in the dashboard to enable it.',
+      reply: 'AI support runs through AnyRouter. Set an anyrouter gateway key in the dashboard to enable it.',
       action: { label: 'Open dashboard', href: '/dashboard#llm-gateway' },
     });
   }
@@ -66,8 +66,8 @@ export const POST: APIRoute = async ({ request, locals }) => {
       headers: {
         Authorization: `Bearer ${gateway.apiKey}`,
         'Content-Type': 'application/json',
-        'X-the router-Title': 'MinhAgent Support',
-        'X-the router-Source': 'minhagent-web',
+        'X-AnyRouter-Title': 'MinhAgent Support',
+        'X-AnyRouter-Source': 'minhagent-web',
       },
       body: JSON.stringify({
         model: SUPPORT_MODEL,
