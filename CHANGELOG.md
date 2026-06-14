@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.1.2](https://github.com/duyet/minhagent/compare/v0.1.1...v0.1.2) (2026-06-14)
+
+
+### ✨ Features
+
+* **web:** add AI support chat and Clerk-managed profile ([c1fd223](https://github.com/duyet/minhagent/commit/c1fd22345c55b5ff66ebf56c0ed80f235cc045d2))
+
+
+### 🐛 Bug Fixes
+
+* **web:** repair broken analyzer integration in support route ([527214d](https://github.com/duyet/minhagent/commit/527214d32dc8931ad46ca2ca005c6c261ba9d0b8))
+
 ## [0.1.1](https://github.com/duyet/minhagent/compare/v0.1.0...v0.1.1) (2026-06-13)
 
 
