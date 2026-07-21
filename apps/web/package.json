@@ -9,7 +9,7 @@
     "typecheck": "astro check"
   },
   "dependencies": {
-    "astro": "^6.4.6",
+    "astro": "^7.1.0",
     "@astrojs/cloudflare": "^13.1.10",
     "@clerk/astro": "~3.3.3"
   },
