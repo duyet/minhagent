@@ -1,6 +1,6 @@
 import { POST as chat } from "./app/api/chat/route"
 
-type Env = { ASSETS: Fetcher }
+type Env = { ASSETS: { fetch: (request: Request) => Promise<Response> } }
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {

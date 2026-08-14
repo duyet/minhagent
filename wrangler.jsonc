@@ -10,11 +10,5 @@
     "not_found_handling": "single-page-application"
   },
   "workers_dev": true,
-  // custom_domain fails: active zone minhagent.dev already has externally
-  // managed DNS (token cannot list/edit that zone). Zone routes work.
-  "routes": [
-    { "pattern": "minhagent.dev", "zone_id": "578944db11fc5f709b943fc851269571" },
-    { "pattern": "minhagent.dev/*", "zone_id": "578944db11fc5f709b943fc851269571" }
-  ],
   "observability": { "enabled": true }
 }
