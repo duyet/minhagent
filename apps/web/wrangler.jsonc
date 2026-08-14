@@ -1,5 +1,7 @@
 {
-  "name": "minhagent-web",
+  // Do not reuse minhagent-web or bind minhagent.dev — those belong to the
+  // root Next Minh worker. This Astro site is not deployed by CI.
+  "name": "minhagent-site",
   "compatibility_date": "2026-06-01",
   "compatibility_flags": ["nodejs_compat"],
   // "main" is intentionally omitted: @astrojs/cloudflare's vite plugin validates
@@ -10,9 +12,6 @@
     "directory": "./dist",
     "binding": "ASSETS"
   },
-  "routes": [
-    { "pattern": "minhagent.dev", "custom_domain": true }
-  ],
   "workers_dev": true,
   "observability": {
     "enabled": true

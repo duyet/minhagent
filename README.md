@@ -1,33 +1,45 @@
-# minhagent
+# Minh
 
-Landing site and GitHub App webhook for MinhAgent. Deploys to Cloudflare Workers.
+Minh is the agent. This repo is the Minh product: a Next.js 16.3.1 chat UI and `/api/chat` worker, not a nested `chatbot-template` folder and not a separate Worker-only UI.
 
-## Apps
+Live: [minhagent.dev](https://minhagent.dev) (apex). Cloudflare Worker name: `minhagent-web`.
 
-- **`apps/web`** — [minhagent.dev](https://minhagent.dev) — Astro + Clerk on CF Workers. Landing page, auth, OAuth provider for MinhAgent.app.
-- **`apps/webhook`** — [webhook.minhagent.dev](https://webhook.minhagent.dev) — Hono on CF Workers. GitHub App webhook receiver.
+## What it does
 
-## Quick start
+- Streaming chat (AI SDK + shadcn chat primitives)
+- `POST /api/chat` — public chat endpoint
+- `execute_snippet` — small JavaScript on Cloudflare Computer, with an isolate fallback
+- Other tools (time, search, etc.) as defined under `tools/`
+
+## Dev
 
 ```bash
 pnpm install
-pnpm dev:web        # Astro dev server
-pnpm dev:webhook    # wrangler dev
+pnpm dev
 ```
+
+Opens the Next.js app locally. Copy `.env.example` to `.env.local` and set the AnyRouter key the chat route already expects (`ANYROUTER_API_KEY`). Do not commit keys.
 
 ## Deploy
 
 ```bash
-pnpm deploy:web
-pnpm deploy:webhook
+pnpm deploy
 ```
 
-## Secrets
+`next build` + `scripts/pack-assets.sh` + Wrangler. Thin worker (`worker.ts`) + static assets under `deploy-assets/` — not a full OpenNext bundle. Worker **minhagent-web**, apex custom domain **minhagent.dev**.
 
-```bash
-# apps/web
-wrangler secret put CLERK_SECRET_KEY
+## Layout (intended)
 
-# apps/webhook
-wrangler secret put GITHUB_WEBHOOK_SECRET
-```
+Product lives at the repo root:
+
+- `app/` — Next.js App Router (`page.tsx`, `app/api/chat/route.ts`)
+- `components/` — chat UI
+- `tools/` — model tools, including `execute_snippet`
+- `lib/` — models, persona, gateway helpers
+- `wrangler.jsonc` — Worker `minhagent-web`, route `minhagent.dev`
+
+`apps/webhook` remains the GitHub App webhook receiver if you still need it; it is not the Minh UI.
+
+## Security
+
+`/api/chat` is unauthenticated. Every request spends your model credits. Rate-limit and cap spend before public traffic.

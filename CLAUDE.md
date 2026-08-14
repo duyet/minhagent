@@ -1,47 +1,56 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Guidance for working in this repository.
 
-## Monorepo
+## Product
 
-pnpm workspace with two Cloudflare Workers apps:
-- `apps/web` — Astro 6 + @astrojs/cloudflare + @clerk/astro (minhagent.dev)
-- `apps/webhook` — Hono 4 GitHub webhook receiver (minhagent-webhook.duyet.workers.dev)
+**Minh is the agent.** The product is the Next.js 16.3.1 chat app at the **repo root** (from the old chatbot template). Do not treat Minh as `chatbot-template/` or as a separate Worker UI under `apps/minh`.
+
+- Site: minhagent.dev (apex)
+- Worker: `minhagent-web`
+- Chat: `POST /api/chat` with the `execute_snippet` tool (Cloudflare Computer / isolate fallback)
 
 ## Commands
 
 ```bash
-pnpm dev:web          # Astro dev server
-pnpm dev:webhook      # Wrangler dev
-pnpm build            # Build both apps
-pnpm typecheck        # astro check + tsc --noEmit (both apps)
-pnpm deploy:web       # Build + wrangler deploy web
-pnpm deploy:webhook   # Wrangler deploy webhook
+pnpm dev          # Next.js
+pnpm build        # next build
+pnpm typecheck    # tsc --noEmit
+pnpm test         # node:test (tools, etc.)
+pnpm deploy       # next build + pack-assets + wrangler (thin worker)
 ```
 
-Filter by package: `pnpm --filter @minhagent/web <cmd>`, `pnpm --filter @minhagent/webhook <cmd>`
+If a webhook package still lives under `apps/webhook`:
+
+```bash
+pnpm --filter @minhagent/webhook dev
+pnpm --filter @minhagent/webhook deploy
+```
 
 ## Architecture
 
-- **Web** uses a shared `BaseLayout.astro` with light-first CSS + dark mode via `prefers-color-scheme`. All pages use it.
-- **Web** is also an OAuth 2.0 PKCE provider for MinhAgent native app (`src/lib/oauth.ts`). Client: `minhagent-app`, redirect: `minhagent://oauth/callback`.
-- **Webhook** verifies GitHub HMAC-SHA256 signatures. Routes events to Cloudflare Workflows.
-- Auth: Clerk handles sign-in/sign-up. Protected pages call `Astro.locals.auth()`.
+- Next.js App Router at root (`app/`). Pages and `app/api/chat/route.ts` stream with AI SDK `streamText`.
+- Tools live in `tools/` (filename = tool name). `execute_snippet` is first-class for arithmetic / tiny JS.
+- Persona: Minh. Never call the product a chatbot template.
+- Deploy: thin `worker.ts` + `deploy-assets/` (Free plan). Wrangler `name`: `minhagent-web`. Custom domain: `minhagent.dev` (apex only).
+- Auth for the marketing/OAuth Astro site is not this app. Minh chat `/api/chat` is public unless you add auth.
 
 ## Secrets
 
-- **web worker**: `CLERK_SECRET_KEY` (wrangler secret), `PUBLIC_CLERK_PUBLISHABLE_KEY` (wrangler var)
-- **webhook worker**: `GITHUB_WEBHOOK_SECRET` (wrangler secret)
-- **GitHub repo**: `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`
+Set locally in `.env.local` (gitignored). On the Worker, use wrangler secrets — do not invent or paste credentials in docs or commits.
+
+Typical chat key: `ANYROUTER_API_KEY` (prefix `sk-ar-`).
+
+Webhook (if present): `GITHUB_WEBHOOK_SECRET`.
+
+GitHub Actions (if deploy workflow exists): `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`.
 
 ## CI
 
-Push to `main` triggers `.github/workflows/deploy.yml`: build → typecheck → deploy webhook → deploy web.
-Typecheck must pass before deploy.
+Push to `main` may build, typecheck, and deploy `minhagent-web`. Typecheck must pass before deploy.
 
 ## Gotchas
 
-- `apps/web` uses `output: 'static'` with individual pages opting into SSR via `export const prerender = false`
-- `.assetsignore` in `apps/web/public/` excludes `_worker.js` from static asset upload — do not remove
-- Never run concurrent `wrangler deploy` from parallel agents — causes OOM
-- Webhook secret rotation: `./scripts/rotate-webhook-secret.sh`
+- Never run concurrent `wrangler deploy` from parallel agents — OOM.
+- Do not describe or recreate a second Worker UI for Minh.
+- Do not point docs at `chatbot-template/` as the product path; root is the intended layout.

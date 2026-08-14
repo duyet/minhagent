@@ -1,0 +1,77 @@
+import {
+  convertToModelMessages,
+  createUIMessageStreamResponse,
+  isStepCount,
+  streamText,
+  toUIMessageStream,
+  validateUIMessages,
+} from "ai"
+
+import { anyrouter } from "@/lib/anyrouter"
+import { getGateway } from "@/lib/gateway"
+import { isGatewayModelId, stripGatewayPrefix } from "@/lib/gateway-models"
+import { DEFAULT_MODEL, getModels, isModelAllowed } from "@/lib/models"
+import { MINH_SYSTEM } from "@/lib/persona"
+import { getTools, type ChatUIMessage } from "@/tools"
+
+export const maxDuration = 30
+
+const MAX_OUTPUT_TOKENS = 256
+
+// This endpoint is public and spends your AnyRouter credits on every request.
+// Before exposing it to real traffic, add a rate limit (e.g. Vercel Firewall /
+// WAF or @upstash/ratelimit), authentication, and an AnyRouter spend limit.
+// See the README "Security" section.
+export async function POST(req: Request) {
+  let body: unknown
+  try {
+    body = await req.json()
+  } catch {
+    return Response.json({ error: "Invalid JSON body." }, { status: 400 })
+  }
+
+  const model = (body as { model?: unknown })?.model
+  const modelId = typeof model === "string" ? model : DEFAULT_MODEL
+
+  const models = await getModels()
+  if (!isModelAllowed(modelId, models)) {
+    return Response.json(
+      { error: `Model ${modelId} is not available.` },
+      { status: 400 }
+    )
+  }
+
+  const tools = getTools(modelId)
+
+  // Validate the shape of every message and tool part before trusting it.
+  let messages: ChatUIMessage[]
+  try {
+    const validated = await validateUIMessages<ChatUIMessage>({
+      messages: (body as { messages?: unknown })?.messages,
+      tools: tools as Parameters<typeof validateUIMessages>[0]["tools"],
+    })
+    messages = validated
+  } catch {
+    return Response.json({ error: "Invalid messages." }, { status: 400 })
+  }
+
+  const result = streamText({
+    model: isGatewayModelId(modelId)
+      ? getGateway()(stripGatewayPrefix(modelId))
+      : anyrouter.chat(modelId),
+    messages: await convertToModelMessages(messages),
+    system: MINH_SYSTEM,
+    tools,
+    stopWhen: isStepCount(5),
+    maxOutputTokens: MAX_OUTPUT_TOKENS,
+    abortSignal: req.signal,
+  })
+
+  return createUIMessageStreamResponse({
+    stream: toUIMessageStream({
+      stream: result.stream,
+      sendSources: true,
+      onError: () => "Something went wrong. Please try again.",
+    }),
+  })
+}

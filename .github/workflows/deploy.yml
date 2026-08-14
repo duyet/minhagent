@@ -4,9 +4,21 @@ on:
   push:
     branches: [main]
     paths:
-      - "apps/**"
+      - "app/**"
+      - "components/**"
+      - "hooks/**"
+      - "lib/**"
+      - "tools/**"
+      - "scripts/**"
+      - "public/**"
+      - "worker.ts"
+      - "wrangler.jsonc"
+      - "next.config.ts"
+      - "open-next.config.ts"
+      - "tsconfig.json"
       - "package.json"
       - "pnpm-lock.yaml"
+      - "apps/webhook/**"
       - ".github/workflows/**"
   # Manual re-deploy from the Actions tab (no code change required).
   workflow_dispatch:
@@ -30,29 +42,8 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      - name: Build web
-        run: cd apps/web && pnpm run build
-        # Clerk's publishable key is a public value (also in wrangler.jsonc
-        # vars). Astro only inlines PUBLIC_* env into the client bundle at
-        # build time, so prerendered pages need it here too — otherwise the
-        # Clerk client script throws "Missing publishableKey" on static pages.
-        env:
-          PUBLIC_CLERK_PUBLISHABLE_KEY: pk_live_Y2xlcmsubWluaGFnZW50LmRldiQ
-
       - name: Typecheck
         run: pnpm run typecheck
 
-      - name: Deploy webhook
-        run: cd apps/webhook && npx wrangler deploy
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-
-      - name: Deploy web
-        # @astrojs/cloudflare v13 emits dist/server/wrangler.json plus a
-        # .wrangler/deploy/config.json redirect that plain `wrangler deploy`
-        # follows; the old dist/_worker.js layout no longer exists.
-        run: cd apps/web && npx wrangler deploy
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      # Deploy Minh and the webhook from a local machine for now.
+      # Re-enable wrangler deploy here when CI should ship again.

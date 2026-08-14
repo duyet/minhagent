@@ -5,7 +5,19 @@ dist/
 .dev.vars
 .env
 .env.*
+!.env.example
 *.log
 .DS_Store
 worker-configuration.d.ts
 .agent-loop/
+
+# next.js
+.next/
+.open-next/
+deploy-assets/
+out/
+build/
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts

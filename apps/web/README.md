@@ -77,12 +77,14 @@ The dev server starts at `http://localhost:4321` with Cloudflare platform proxy 
 
 ## Deployment
 
+This worker is `minhagent-site`. It is **not** deployed by CI and must not use the `minhagent-web` name or bind `minhagent.dev` — the apex belongs to the root Next Minh app.
+
 ```bash
 bun run deploy
 # equivalent to: astro build && wrangler deploy
 ```
 
-This builds the Astro site, then deploys the `dist/_worker.js` entry point plus static assets to Cloudflare Workers.
+This builds the Astro site, then deploys to `*.workers.dev` only.
 
 ### First-time checklist
 

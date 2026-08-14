@@ -1,0 +1,20 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "minhagent-web",
+  "main": "worker.ts",
+  "compatibility_date": "2026-06-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": "./deploy-assets",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application"
+  },
+  "workers_dev": true,
+  // custom_domain fails: active zone minhagent.dev already has externally
+  // managed DNS (token cannot list/edit that zone). Zone routes work.
+  "routes": [
+    { "pattern": "minhagent.dev", "zone_id": "578944db11fc5f709b943fc851269571" },
+    { "pattern": "minhagent.dev/*", "zone_id": "578944db11fc5f709b943fc851269571" }
+  ],
+  "observability": { "enabled": true }
+}
