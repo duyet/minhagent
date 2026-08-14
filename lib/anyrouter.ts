@@ -7,7 +7,7 @@ export const ANYROUTER_BASE_URL = "https://anyrouter.dev/api/v1"
 // display metadata. See https://anyrouter.dev/docs/features/app-attribution.md
 const APP_URL = process.env.VERCEL_PROJECT_PRODUCTION_URL
   ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-  : "http://localhost:3000"
+  : "https://minhagent.dev"
 
 export const anyrouter = createOpenAI({
   baseURL: ANYROUTER_BASE_URL,

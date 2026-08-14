@@ -1,10 +1,14 @@
 "use client"
 
+import { getToolName, isDynamicToolUIPart, isToolUIPart } from "ai"
+
 import { type ChatUIMessage } from "@/tools"
 import { AskUserPart } from "@/components/parts/ask-user-part"
+import { DynamicToolPart } from "@/components/parts/dynamic-tool-part"
 import { GetTimePart } from "@/components/parts/get-time-part"
 import { GithubRepoPart } from "@/components/parts/github-repo-part"
 import { ScrapePart } from "@/components/parts/scrape-part"
+import { McpCallPartView, McpListPart } from "@/components/parts/mcp-part"
 import { SnippetPart } from "@/components/parts/snippet-part"
 import { SourcesPart } from "@/components/parts/sources-part"
 import { TextPart } from "@/components/parts/text-part"
@@ -58,7 +62,34 @@ export function ChatMessage({
               return <ScrapePart key={part.toolCallId} part={part} />
             case "tool-execute_snippet":
               return <SnippetPart key={part.toolCallId} part={part} />
+            case "tool-mcp_list_tools":
+              return <McpListPart key={part.toolCallId} part={part} />
+            case "tool-mcp_call":
+              return <McpCallPartView key={part.toolCallId} part={part} />
+            case "dynamic-tool":
+              return (
+                <DynamicToolPart
+                  key={part.toolCallId}
+                  name={part.toolName}
+                  state={part.state}
+                  output={"output" in part ? part.output : undefined}
+                  errorText={"errorText" in part ? part.errorText : undefined}
+                />
+              )
             default:
+              if (isDynamicToolUIPart(part) || isToolUIPart(part)) {
+                return (
+                  <DynamicToolPart
+                    key={part.toolCallId}
+                    name={getToolName(part)}
+                    state={part.state}
+                    output={"output" in part ? part.output : undefined}
+                    errorText={
+                      "errorText" in part ? part.errorText : undefined
+                    }
+                  />
+                )
+              }
               return null
           }
         })}

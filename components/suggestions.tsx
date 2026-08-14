@@ -20,6 +20,11 @@ const suggestions = [
     prompt:
       "Search the web for the latest Cloudflare Workers agent news and summarize it.",
   },
+  {
+    label: "List MCP tools",
+    prompt:
+      "Use mcp_list_tools (no server filter) then summarize the duyet MCP tools.",
+  },
 ]
 
 export function Suggestions({

@@ -1,22 +1,14 @@
-import {
-  convertToModelMessages,
-  createUIMessageStreamResponse,
-  isStepCount,
-  streamText,
-  toUIMessageStream,
-  validateUIMessages,
-} from "ai"
+import { createAgentUIStreamResponse, validateUIMessages } from "ai"
 
 import { anyrouter } from "@/lib/anyrouter"
+import { createMinhAgent } from "@/lib/chat-agent"
 import { getGateway } from "@/lib/gateway"
 import { isGatewayModelId, stripGatewayPrefix } from "@/lib/gateway-models"
 import { DEFAULT_MODEL, getModels, isModelAllowed } from "@/lib/models"
-import { MINH_SYSTEM } from "@/lib/persona"
 import { getTools, type ChatUIMessage } from "@/tools"
 
-export const maxDuration = 30
-
-const MAX_OUTPUT_TOKENS = 256
+// Wall-clock budget for a multi-step tool loop (model + tools + follow-up).
+export const maxDuration = 60
 
 // This endpoint is public and spends your AnyRouter credits on every request.
 // Before exposing it to real traffic, add a rate limit (e.g. Vercel Firewall /
@@ -55,23 +47,18 @@ export async function POST(req: Request) {
     return Response.json({ error: "Invalid messages." }, { status: 400 })
   }
 
-  const result = streamText({
-    model: isGatewayModelId(modelId)
+  const agent = createMinhAgent(
+    isGatewayModelId(modelId)
       ? getGateway()(stripGatewayPrefix(modelId))
       : anyrouter.chat(modelId),
-    messages: await convertToModelMessages(messages),
-    system: MINH_SYSTEM,
-    tools,
-    stopWhen: isStepCount(5),
-    maxOutputTokens: MAX_OUTPUT_TOKENS,
-    abortSignal: req.signal,
-  })
+    tools
+  )
 
-  return createUIMessageStreamResponse({
-    stream: toUIMessageStream({
-      stream: result.stream,
-      sendSources: true,
-      onError: () => "Something went wrong. Please try again.",
-    }),
+  return createAgentUIStreamResponse({
+    agent,
+    uiMessages: messages,
+    sendSources: true,
+    abortSignal: req.signal,
+    onError: () => "Something went wrong. Please try again.",
   })
 }

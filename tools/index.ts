@@ -4,6 +4,7 @@ import { askUser } from "./ask_user"
 import { getTime } from "./date_time"
 import { githubRepo } from "./github_repo"
 import { scrapePage } from "./scrape"
+import { mcpCall, mcpListTools } from "./mcp"
 import { executeSnippetTool } from "./snippet"
 import { getWebSearch } from "./web_search"
 import { getWeather } from "./weather"
@@ -15,6 +16,8 @@ const baseTools = {
   get_weather: getWeather,
   scrape_page: scrapePage,
   execute_snippet: executeSnippetTool,
+  mcp_list_tools: mcpListTools,
+  mcp_call: mcpCall,
 }
 
 export function getTools(modelId: string) {
@@ -70,3 +73,10 @@ export type ExecuteSnippetToolPart = Extract<
   ChatMessagePart,
   { type: "tool-execute_snippet" }
 >
+
+export type McpListToolsPart = Extract<
+  ChatMessagePart,
+  { type: "tool-mcp_list_tools" }
+>
+
+export type McpCallPart = Extract<ChatMessagePart, { type: "tool-mcp_call" }>
