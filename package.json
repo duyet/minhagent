@@ -5,10 +5,13 @@
   "scripts": {
     "dev:web": "pnpm --filter @minhagent/web dev",
     "dev:webhook": "pnpm --filter @minhagent/webhook dev",
-    "build": "pnpm --filter @minhagent/web build && pnpm --filter @minhagent/webhook build",
+    "dev:minh": "pnpm --filter @minhagent/minh dev",
+    "build": "pnpm --filter @minhagent/web build && pnpm --filter @minhagent/webhook build && pnpm --filter @minhagent/minh build",
     "deploy:web": "pnpm --filter @minhagent/web deploy",
     "deploy:webhook": "pnpm --filter @minhagent/webhook deploy",
-    "typecheck": "pnpm --filter @minhagent/web typecheck && pnpm --filter @minhagent/webhook typecheck"
+    "deploy:minh": "pnpm --filter @minhagent/minh deploy",
+    "test:minh": "pnpm --filter @minhagent/minh test",
+    "typecheck": "pnpm --filter @minhagent/web typecheck && pnpm --filter @minhagent/webhook typecheck && pnpm --filter @minhagent/minh typecheck"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
