@@ -18,9 +18,7 @@
     "format": "prettier --write \"**/*.{ts,tsx}\"",
     "smoke": "node --env-file-if-exists=.env.local scripts/smoke.mjs",
     "pack:assets": "bash scripts/pack-assets.sh",
-    "deploy": "next build && bash scripts/pack-assets.sh && wrangler deploy",
-    "dev:webhook": "pnpm --filter @minhagent/webhook dev",
-    "deploy:webhook": "pnpm --filter @minhagent/webhook deploy"
+    "deploy": "next build && bash scripts/pack-assets.sh && wrangler deploy"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^4.0.36",
@@ -34,6 +32,7 @@
     "ai": "^7.0.58",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "eve": "^0.38.1",
     "lucide-react": "^1.30.0",
     "next": "16.3.1",
     "next-themes": "^0.4.6",
@@ -46,7 +45,6 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@opennextjs/cloudflare": "^1.14.8",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
@@ -62,7 +60,6 @@
   },
   "pnpm": {
     "onlyBuiltDependencies": [
-      "@clerk/shared",
       "esbuild",
       "sharp",
       "unrs-resolver",

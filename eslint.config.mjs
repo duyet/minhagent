@@ -14,7 +14,6 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // Agent worktrees / local tooling
     ".claude/",
-    "apps/**",
     "deploy-assets/**",
     ".open-next/**",
   ]),

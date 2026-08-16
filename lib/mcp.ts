@@ -1,20 +1,15 @@
-export const MCP_SERVERS: Record<string, { url: string; auth: "anyrouter" | "none"; blurb: string }> =
-  {
-    duyet: {
-      url: "https://mcp.duyet.net/mcp",
-      auth: "none",
-      blurb:
-        "Duyet: github_activity, blog posts, say_hi, hire_me, send_message, analytics",
-    },
-    anyrouter: {
-      url: "https://anyrouter.dev/api/v1/mcp",
-      auth: "anyrouter",
-      blurb: "AnyRouter: models, credits, presets, hub",
-    },
-  }
+import {
+  DEFAULT_MCP_SERVER,
+  DEFAULT_MCP_URL,
+  MCP_CONNECTIONS,
+} from "@/agent/connections"
 
-export const DEFAULT_MCP_SERVER = "duyet"
-export const DEFAULT_MCP_URL = MCP_SERVERS.duyet.url
+export const MCP_SERVERS: Record<
+  string,
+  { url: string; auth: "anyrouter" | "none"; blurb: string }
+> = MCP_CONNECTIONS
+
+export { DEFAULT_MCP_SERVER, DEFAULT_MCP_URL }
 
 export type McpContent = { type?: string; text?: string }
 

@@ -1,10 +1,13 @@
 import { ToolLoopAgent, isStepCount, type LanguageModel } from "ai"
 
+import agentConfig, {
+  MAX_OUTPUT_TOKENS,
+  MAX_STEPS,
+} from "@/agent/agent"
 import { buildMinhSystemPrompt } from "@/lib/persona"
 import { getTools } from "@/tools"
 
-export const MAX_OUTPUT_TOKENS = 2048
-export const MAX_STEPS = 8
+export { MAX_OUTPUT_TOKENS, MAX_STEPS }
 
 export function createMinhAgent(
   model: LanguageModel,
@@ -14,7 +17,7 @@ export function createMinhAgent(
     model,
     instructions: buildMinhSystemPrompt(Object.keys(tools)),
     tools,
-    stopWhen: isStepCount(MAX_STEPS),
-    maxOutputTokens: MAX_OUTPUT_TOKENS,
+    stopWhen: isStepCount(agentConfig.stopWhenSteps),
+    maxOutputTokens: agentConfig.maxOutputTokens,
   })
 }

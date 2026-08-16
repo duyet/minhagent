@@ -8,17 +8,16 @@ on:
       - "components/**"
       - "hooks/**"
       - "lib/**"
+      - "agent/**"
       - "tools/**"
       - "scripts/**"
       - "public/**"
       - "worker.ts"
       - "wrangler.jsonc"
       - "next.config.ts"
-
       - "tsconfig.json"
       - "package.json"
       - "pnpm-lock.yaml"
-      - "apps/webhook/**"
       - ".github/workflows/**"
   # Manual re-deploy from the Actions tab (no code change required).
   workflow_dispatch:
@@ -45,5 +44,5 @@ jobs:
       - name: Typecheck
         run: pnpm run typecheck
 
-      # Deploy Minh and the webhook from a local machine for now.
+      # Deploy minhagent-web from a local machine for now.
       # Re-enable wrangler deploy here when CI should ship again.

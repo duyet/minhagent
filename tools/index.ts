@@ -1,24 +1,9 @@
 import { type InferUITools, type UIDataTypes, type UIMessage } from "ai"
 
-import { askUser } from "./ask_user"
-import { getTime } from "./date_time"
-import { githubRepo } from "./github_repo"
-import { scrapePage } from "./scrape"
-import { mcpCall, mcpListTools } from "./mcp"
-import { executeSnippetTool } from "./snippet"
+import { agentTools } from "@/agent/tools"
 import { getWebSearch } from "./web_search"
-import { getWeather } from "./weather"
 
-const baseTools = {
-  github_repo: githubRepo,
-  ask_user: askUser,
-  get_time: getTime,
-  get_weather: getWeather,
-  scrape_page: scrapePage,
-  execute_snippet: executeSnippetTool,
-  mcp_list_tools: mcpListTools,
-  mcp_call: mcpCall,
-}
+const baseTools = agentTools
 
 export function getTools(modelId: string) {
   const webSearch = getWebSearch(modelId)
